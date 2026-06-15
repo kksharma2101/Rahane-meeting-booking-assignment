@@ -76,7 +76,7 @@ export default function BookingsClient() {
     );
 
     return (
-        <div className="space-y-8 max-w-3xl">
+        <div className="space-y-8 max-w-3xl mt-12 lg:mt-0">
             {/* Header */}
             <div>
                 <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-1">

@@ -1,4 +1,4 @@
-// ─── Room ─────────────────────────────────────────────────────────────────────
+// Room
 
 export interface Room {
     _id: string;
@@ -10,7 +10,7 @@ export interface Room {
     createdAt: string;
 }
 
-// ─── Slot ─────────────────────────────────────────────────────────────────────
+// Slot
 
 export interface Slot {
     start: string;   // "HH:MM"
@@ -35,7 +35,7 @@ export interface AvailabilityResponse {
     summary: { total: number; available: number; booked: number };
 }
 
-// ─── Booking ──────────────────────────────────────────────────────────────────
+// Booking
 
 export type BookingStatus =
     | "confirmed"
@@ -56,7 +56,7 @@ export interface Booking {
     updatedAt: string;
 }
 
-// ─── API ──────────────────────────────────────────────────────────────────────
+// API
 
 export interface ApiSuccess<T> {
     success: true;
@@ -72,7 +72,7 @@ export interface ApiError {
 
 export type ApiResponse<T> = ApiSuccess<T> | ApiError;
 
-// ─── UI helpers ───────────────────────────────────────────────────────────────
+// UI helpers
 
 export interface BookingFormValues {
     name: string;

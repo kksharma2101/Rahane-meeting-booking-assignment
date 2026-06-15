@@ -8,32 +8,14 @@ import {
 
 const router = Router();
 
-/**
- * POST /api/bookings
- * Create a new booking for one or more consecutive 30-minute slots.
- *
- * Body:
- *  {
- *    roomId: string,
- *    date: "YYYY-MM-DD",
- *    startTime: "HH:MM",
- *    endTime: "HH:MM",
- *    bookedBy: { name: string, email: string },
- *    title: string
- *  }
- */
+// POST /api/bookings
 router.post('/', createBooking);
 
-/**
- * GET /api/bookings?email=user@example.com
- * Returns all bookings for a user identified by email.
- */
+// GET /api/bookings?email
+// Returns all bookings for a user identified by email.
 router.get('/', getUserBookings);
 
-/**
- * GET /api/bookings/:id
- * Returns a single booking by ID.
- */
+// GET /api/bookings/:id
 router.get('/:id', getBookingById);
 
 /**

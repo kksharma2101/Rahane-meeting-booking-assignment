@@ -57,15 +57,10 @@ export async function getRoomAvailability(
             throw new NotFoundError('Room');
         }
 
-        // ── Fetch all CONFIRMED bookings for this room on this date ────────────
-        //
-        // We read from the same SlotLock collection that the booking-creation path
-        // writes to, so the availability view is ALWAYS consistent with what can
-        // actually be booked.  A slot shown "available" here WILL be bookable —
-        // the only way it could fail is if another request wins the race in the
-        // tiny window between this read and the write, which the unique index
-        // will catch and report as a 409.
-        //
+        // Fetch all CONFIRMED bookings for this room on this date
+
+        // We read from the same SlotLock collection that the booking-creation path writes to, so the availability view is ALWAYS consistent with what can actually be booked.  A slot shown "available" here WILL be bookable — the only way it could fail is if another request wins the race in the tiny window between this read and the write, which the unique index will catch and report as a 409.
+
         const takenLocks = await SlotLock.find({
             room: id,
             date,

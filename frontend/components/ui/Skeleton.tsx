@@ -11,7 +11,7 @@ export function SlotGridSkeleton() {
         <div className="space-y-1">
             {Array.from({ length: 16 }).map((_, i) => (
                 <div key={i} className="flex gap-2 items-center">
-                    <Skeleton className="w-14 h-5 flex-shrink-0" />
+                    <Skeleton className="w-14 h-5 shrink-0" />
                     <Skeleton className="flex-1 h-9" />
                 </div>
             ))}

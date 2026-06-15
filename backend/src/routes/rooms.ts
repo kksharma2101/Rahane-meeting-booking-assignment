@@ -3,16 +3,10 @@ import { getRoomAvailability, listRooms } from '../controllers/room.controller.j
 
 const router = Router();
 
-/**
- * GET /api/rooms
- * Returns all rooms.
- */
+// GET /api/rooms
 router.get('/', listRooms);
 
-/**
- * GET /api/rooms/:id/availability?date=YYYY-MM-DD
- * Returns the 48-slot availability grid for a room on a given date.
- */
+// GET /api/rooms/:id/availability?date=YYYY-MM-DD
 router.get('/:id/availability', getRoomAvailability);
 
 export default router;

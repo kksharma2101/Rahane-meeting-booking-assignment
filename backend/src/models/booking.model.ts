@@ -39,15 +39,7 @@ const BookingSchema = new Schema<IBookingDocument>(
             required: [true, 'End time is required'],
             match: [/^\d{2}:\d{2}$/, 'End time must be in HH:MM format'],
         },
-        /**
-         * slots: array of slot-start times that this booking occupies.
-         * e.g. a 09:00–10:30 booking → ["09:00", "09:30", "10:00"]
-         *
-         * The compound unique index on (room, date, slot) is the DATABASE-LEVEL
-         * guard against double booking.  Each slot is stored as a separate document
-         * in the SlotLock collection (see below) — a unique index violation from
-         * MongoDB means the slot was taken, even under concurrent inserts.
-         */
+
         slots: {
             type: [String],
             required: [true, 'Slots are required'],

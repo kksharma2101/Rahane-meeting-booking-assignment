@@ -36,7 +36,7 @@ export default function SlotGrid({ slots, selectedStart, selectedEnd, onSlotClic
                 return (
                     <div key={slot.start} className="flex items-center gap-3">
                         {/* Time label — only shown on the hour to reduce clutter */}
-                        <div className="w-14 flex-shrink-0 text-right">
+                        <div className="w-14 shrink-0 text-right">
                             {isHour ? (
                                 <span className="text-[11px] font-medium text-slate-400 tabular">
                                     {formatTime(slot.start)}
@@ -100,7 +100,7 @@ export default function SlotGrid({ slots, selectedStart, selectedEnd, onSlotClic
                                             {slot.title ?? "Booked"}
                                         </span>
                                     </div>
-                                    <span className="text-[10px] text-slate-400 flex-shrink-0">
+                                    <span className="text-[10px] text-slate-400 shrink-0">
                                         {slot.bookedBy}
                                     </span>
                                 </div>

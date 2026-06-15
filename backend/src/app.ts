@@ -9,10 +9,10 @@ import { globalErrorHandler } from './lib/error.js';
 
 const app = express();
 
-// ─── Security headers ───
+// Security headers
 // app.use(helmet());
 
-// ─── CORS — allow Next.js dev server and configured origins ───
+// CORS — allow Next.js dev server and configured origins
 app.use(
     cors({
         origin: process.env.CORS_ORIGIN
@@ -24,11 +24,11 @@ app.use(
     })
 );
 
-// ─── Body parsing ───
+// Body parsing
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// ─── HTTP request logging ───
+// HTTP request logging
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 } else {
@@ -36,7 +36,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 app.use(requestLogger);
 
-// ─── Health check ───
+// Health check
 app.get('/health', (_req: Request, res: Response) => {
     res.json({
         status: 'ok',
@@ -46,11 +46,11 @@ app.get('/health', (_req: Request, res: Response) => {
     });
 });
 
-// ─── API routes ───
+// API routes
 app.use('/api/rooms', roomRoutes);
 app.use('/api/bookings', bookingRoutes);
 
-// ─── 404 handler ───
+// 404 handler
 app.use((_req: Request, res: Response) => {
     res.status(404).json({
         success: false,
@@ -59,28 +59,7 @@ app.use((_req: Request, res: Response) => {
     });
 });
 
-// ─── Global error handler (must be last) ────
+// Global error handler (must be last)
 app.use(globalErrorHandler);
 
 export default app;
-
-// import express from "express";
-// import cors from "cors";
-// import morgan from "morgan";
-
-// const app = express();
-
-// app.use(cors());
-
-// app.use(express.json());
-
-// app.use(morgan("dev"));
-
-// app.get("/", (_, res) => {
-//     res.json({
-//         success: true,
-//         message: "Meeting Room Booking API",
-//     });
-// });
-
-// export default app;

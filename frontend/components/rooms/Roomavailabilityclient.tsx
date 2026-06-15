@@ -193,7 +193,7 @@ export default function RoomAvailabilityClient({ roomId, initialDate }: Props) {
         slotCount === 1 ? "30 min" : `${slotCount * 30} min (${slotCount} slots)`;
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 mt-10 lg:mt-0">
             {/* Back + header */}
             <div>
                 <Link

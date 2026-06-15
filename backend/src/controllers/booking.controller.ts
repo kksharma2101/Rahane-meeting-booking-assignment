@@ -323,14 +323,14 @@ export async function cancelBooking(
             throw new NotFoundError('Booking');
         }
 
-        // ── Already cancelled ──────────────────────────────────────────────────
+        // Already cancelled
         if (booking.status !== 'confirmed') {
             throw new BadRequestError(
                 `This booking is already ${booking.status} and cannot be cancelled again.`
             );
         }
 
-        // ── Compute refund status using SERVER clock ───────────────────────────
+        // Compute refund status using SERVER clock
         const nowMs = Date.now(); // Server's current UTC time
 
         // booking.date is "YYYY-MM-DD", booking.startTime is "HH:MM"
@@ -346,11 +346,11 @@ export async function cancelBooking(
                 ? 'cancelled-refundable'
                 : 'cancelled-non-refundable';
 
-        // ── Update booking status ──────────────────────────────────────────────
+        // Update booking status
         booking.status = newStatus;
         await booking.save();
 
-        // ── Free the slots immediately ─────────────────────────────────────────
+        // Free the slots immediately
         const deleteResult = await SlotLock.deleteMany({ bookingId: booking._id });
 
         const hoursUntilStart = msUntilStart / (1000 * 60 * 60);
@@ -375,7 +375,6 @@ export async function cancelBooking(
 }
 
 //  GET /api/bookings/:id — Get a single booking
-
 export async function getBookingById(
     req: Request,
     res: Response,

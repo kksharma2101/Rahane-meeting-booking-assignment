@@ -6,16 +6,16 @@ interface Props {
     searchParams: Promise<{ date?: string }>;
 }
 
-// export async function generateMetadata({ params }: Props) {
-//     try {
-//         const { id } = await params;
-//         const rooms = await fetchRooms();
-//         const room = rooms.find((r) => r._id === id);
-//         return { title: room ? `${room.name} — RoomBook` : "Room — RoomBook" };
-//     } catch {
-//         return { title: "Room — RoomBook" };
-//     }
-// }
+export async function generateMetadata({ params }: Props) {
+    try {
+        const { id } = await params;
+        const rooms = await fetchRooms();
+        const room = rooms.find((r) => r._id === id);
+        return { title: room ? `${room.name} — RoomBook` : "Room — RoomBook" };
+    } catch {
+        return { title: "Room — RoomBook" };
+    }
+}
 
 export default async function RoomPage({ params, searchParams }: Props) {
     const { id } = await params;

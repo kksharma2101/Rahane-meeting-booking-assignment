@@ -1,17 +1,7 @@
-/**
- * Concurrency test
- * Run: npm run test:concurrency
- *
- * Fires N simultaneous POST /api/bookings requests for the SAME slot.
- * Expected result: exactly 1 succeeds (201), all others get 409 Conflict.
- *
- * This proves the unique-index guard works under real concurrent load.
- */
-
 const API_BASE = process.env.API_BASE ?? 'http://localhost:5000';
 const CONCURRENT_REQUESTS = 10;
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// Helpers
 
 function todayStr(): string {
     return new Date().toISOString().split('T')[0];
@@ -64,42 +54,42 @@ async function getRooms(): Promise<Array<{ _id: string; name: string }>> {
     return json.data;
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+// Main
 
 async function runConcurrencyTest(): Promise<void> {
     console.log('\n╔══════════════════════════════════════════════════════╗');
     console.log('║       CONCURRENCY DOUBLE-BOOKING TEST                ║');
     console.log('╚══════════════════════════════════════════════════════╝\n');
 
-    // ── 1. Health check ─────────────────────────────────────────────────────
+    // 1. Health check
     try {
         const health = await fetch(`${API_BASE}/health`);
         if (!health.ok) throw new Error('Server not healthy');
-        console.log(`✅ Server is up: ${API_BASE}`);
+        console.log(`Server is up: ${API_BASE}`);
     } catch {
-        console.error(`❌ Server not reachable at ${API_BASE}`);
+        console.error(`Server not reachable at ${API_BASE}`);
         console.error('   Start the server first: npm run dev');
         process.exit(1);
     }
 
-    // ── 2. Get first room ────────────────────────────────────────────────────
+    // 2. Get first room
     const rooms = await getRooms();
     if (!rooms.length) {
-        console.error('❌ No rooms found. Run: npm run seed');
+        console.error('No rooms found. Run: npm run seed');
         process.exit(1);
     }
     const room = rooms[0];
-    console.log(`🏢 Testing with room: ${room.name} (${room._id})`);
+    console.log(`Testing with room: ${room.name} (${room._id})`);
 
     // Use tomorrow so we don't conflict with seeded data
     const date = tomorrowStr();
     const startTime = '23:00'; // Late night — unlikely to be taken
     const endTime = '23:30';
 
-    console.log(`📅 Target slot: ${date} ${startTime}–${endTime}`);
-    console.log(`🔥 Firing ${CONCURRENT_REQUESTS} simultaneous requests...\n`);
+    console.log(`Target slot: ${date} ${startTime}–${endTime}`);
+    console.log(`Firing ${CONCURRENT_REQUESTS} simultaneous requests...\n`);
 
-    // ── 3. Fire all requests simultaneously ──────────────────────────────────
+    // 3. Fire all requests simultaneously
     const t0 = Date.now();
     const promises = Array.from({ length: CONCURRENT_REQUESTS }, (_, i) =>
         bookSlot(i + 1, room._id, date, startTime, endTime)
@@ -119,7 +109,7 @@ async function runConcurrencyTest(): Promise<void> {
         };
     });
 
-    // ── 4. Analyse results ───────────────────────────────────────────────────
+    // 4. Analyse results
     const successes = results.filter((r) => r.status === 201);
     const conflicts = results.filter((r) => r.status === 409);
     const other = results.filter((r) => r.status !== 201 && r.status !== 409);
@@ -149,22 +139,22 @@ async function runConcurrencyTest(): Promise<void> {
 
     console.log('\n─────────────────────────────────────────────────────────');
     if (successes.length === 1 && conflicts.length === CONCURRENT_REQUESTS - 1) {
-        console.log('🎉 TEST PASSED: Exactly 1 booking succeeded, all others got 409');
+        console.log('TEST PASSED: Exactly 1 booking succeeded, all others got 409');
         console.log('   The database-level unique index correctly prevented double-booking');
         console.log(
             `   Winning request: #${successes[0].index} (${successes[0].duration}ms)`
         );
     } else if (successes.length === 0) {
-        console.log('⚠️  TEST INCONCLUSIVE: No requests succeeded');
+        console.log('TEST INCONCLUSIVE: No requests succeeded');
         console.log('   The target slot may already be booked. Try a different time or re-seed.');
     } else if (successes.length > 1) {
         console.log(
-            `❌ TEST FAILED: ${successes.length} requests succeeded for the same slot!`
+            `TEST FAILED: ${successes.length} requests succeeded for the same slot!`
         );
         console.log('   DOUBLE BOOKING DETECTED — the concurrency guard is not working!');
         process.exit(1);
     } else {
-        console.log('⚠️  Unexpected result distribution. Check server logs.');
+        console.log('Unexpected result distribution. Check server logs.');
     }
     console.log('─────────────────────────────────────────────────────────\n');
 }

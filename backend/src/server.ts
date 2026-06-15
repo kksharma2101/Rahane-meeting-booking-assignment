@@ -1,10 +1,9 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import 'dotenv/config';
 
 import app from './app.js';
 import { connectDB } from './config/db.js';
 
-const PORT = parseInt(process.env.PORT ?? '5000', 10);
+const PORT = parseInt(process.env.PORT ?? '1206', 10);
 
 async function startServer(): Promise<void> {
     try {
@@ -12,10 +11,6 @@ async function startServer(): Promise<void> {
 
         const server = app.listen(PORT, () => {
             console.log(`\n🚀 Meeting Room API running on http://localhost:${PORT}`);
-            // console.log(`📋 Health check: http://localhost:${PORT}/health`);
-            // console.log(`🏢 Rooms:        GET http://localhost:${PORT}/api/rooms`);
-            // console.log(`📅 Bookings:     POST http://localhost:${PORT}/api/bookings`);
-            // console.log(`\nEnvironment: ${process.env.NODE_ENV ?? 'development'}\n`);
         });
 
         // Graceful shutdown
@@ -44,23 +39,3 @@ async function startServer(): Promise<void> {
 }
 
 startServer();
-
-//
-
-// import "dotenv/config";
-// import app from "./app";
-// import { connectDB } from "./config/db";
-
-// const port = process.env.PORT || 1206;
-
-// const startServer = async () => {
-//     await connectDB();
-
-//     app.listen(port, () => {
-//         console.log(
-//             `Server running on port ${port}`
-//         );
-//     });
-// };
-
-// startServer();
