@@ -1,62 +1,39 @@
-import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { Room } from '../models/room.model.js';
 import { SlotLock } from '../models/booking.model.js';
-
-import {
-    generateDaySlots,
-    isValidDate,
-    minutesToTime,
-    timeToMinutes,
-} from '../utils/slots.js';
-
+import { generateDaySlots, isValidDate, minutesToTime, timeToMinutes, } from '../utils/slots.js';
 import { successResponse } from '../lib/response.js';
 import { NotFoundError, ValidationError } from '../lib/error.js';
-import { SlotInfo } from '../types/Index.js';
-
 // Get all rooms
-export async function listRooms(
-    _req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> {
+export async function listRooms(_req, res, next) {
     try {
         const rooms = await Room.find().sort({ name: 1 });
         if (!rooms.length) {
             throw new NotFoundError('Room');
         }
         successResponse(res, rooms);
-    } catch (err) {
+    }
+    catch (err) {
         next(err);
     }
 }
-
 // GET /api/rooms/:id/availability?date=YYYY-MM-DD
-export async function getRoomAvailability(
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> {
+export async function getRoomAvailability(req, res, next) {
     try {
         const { id } = req.params;
-        const { date } = req.query as { date?: string };
-
+        const { date } = req.query;
         // validate inputs
         if (!mongoose.isValidObjectId(id)) {
             throw new ValidationError('Invalid room ID');
         }
         if (!date || !isValidDate(date)) {
-            throw new ValidationError(
-                'Query parameter "date" is required and must be in YYYY-MM-DD format'
-            );
+            throw new ValidationError('Query parameter "date" is required and must be in YYYY-MM-DD format');
         }
-
         // Confirm room exists
         const room = await Room.findById(id);
         if (!room) {
             throw new NotFoundError('Room');
         }
-
         // ── Fetch all CONFIRMED bookings for this room on this date ────────────
         //
         // We read from the same SlotLock collection that the booking-creation path
@@ -70,23 +47,9 @@ export async function getRoomAvailability(
             room: id,
             date,
         }).populate('bookingId', 'bookedBy title status');
-
-        // Build a map: slotStart → lock info
-        interface LockInfo {
-            bookingId: mongoose.Types.ObjectId;
-            bookedByName: string;
-            title: string;
-            status: string;
-        }
-        const takenMap = new Map<string, LockInfo>();
-
+        const takenMap = new Map();
         for (const lock of takenLocks) {
-            const booking = lock.bookingId as unknown as {
-                _id: mongoose.Types.ObjectId;
-                bookedBy: { name: string };
-                title: string;
-                status: string;
-            };
+            const booking = lock.bookingId;
             if (booking && booking.status === 'confirmed') {
                 takenMap.set(lock.slotStart, {
                     bookingId: booking._id,
@@ -96,14 +59,12 @@ export async function getRoomAvailability(
                 });
             }
         }
-
         // Build full 48-slot grid 
         const allSlots = generateDaySlots();
-        const grid: SlotInfo[] = allSlots.map((slotStart) => {
+        const grid = allSlots.map((slotStart) => {
             const slotEndMinutes = timeToMinutes(slotStart) + 30;
             const slotEnd = minutesToTime(slotEndMinutes >= 24 * 60 ? 0 : slotEndMinutes);
             const lock = takenMap.get(slotStart);
-
             if (lock) {
                 return {
                     start: slotStart,
@@ -114,14 +75,12 @@ export async function getRoomAvailability(
                     title: lock.title,
                 };
             }
-
             return {
                 start: slotStart,
                 end: slotEnd,
                 available: true,
             };
         });
-
         successResponse(res, {
             room: {
                 id: room._id,
@@ -139,7 +98,8 @@ export async function getRoomAvailability(
                 booked: grid.filter((s) => !s.available).length,
             },
         });
-    } catch (err) {
+    }
+    catch (err) {
         next(err);
     }
 }

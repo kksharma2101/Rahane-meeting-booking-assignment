@@ -1,5 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
-import { BookingStatus } from '../types/Index';
+import { BookingStatus } from '../types/Index.js';
 
 export interface IBookingDocument extends Document {
     room: Types.ObjectId;

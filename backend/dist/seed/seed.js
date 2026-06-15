@@ -11,15 +11,11 @@
  *    - Future bookings on upcoming days
  */
 import 'dotenv/config';
-
-import mongoose from 'mongoose';
 import { connectDB, disconnectDB } from '../config/db.js';
 import { Room } from '../models/room.model.js';
 import { Booking, SlotLock } from '../models/booking.model.js';
 import { getSlotsForRange } from '../utils/slots.js';
-
 // Room definitions
-
 const ROOMS = [
     {
         name: 'Boardroom Alpha',
@@ -50,83 +46,59 @@ const ROOMS = [
         amenities: ['TV Screen', 'Whiteboard'],
     },
 ];
-
 // Date helpers (all UTC)
-
-function todayStr(): string {
+function todayStr() {
     return new Date().toISOString().split('T')[0];
 }
-
-function dateOffsetStr(days: number): string {
+function dateOffsetStr(days) {
     const d = new Date();
     d.setUTCDate(d.getUTCDate() + days);
     return d.toISOString().split('T')[0];
 }
-
 /**
  * Current UTC hour, rounded to nearest 30-min boundary.
  * e.g. 10:45 UTC → "10:30"
  */
-function currentSlot(): string {
+function currentSlot() {
     const now = new Date();
     const h = now.getUTCHours();
     const m = now.getUTCMinutes() >= 30 ? 30 : 0;
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
-
-function addMinutes(time: string, minutes: number): string {
+function addMinutes(time, minutes) {
     const [h, m] = time.split(':').map(Number);
     const total = h * 60 + m + minutes;
     return `${String(Math.floor(total / 60) % 24).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
-
 // Seed function
-
-async function seed(): Promise<void> {
+async function seed() {
     await connectDB();
     console.log('\n🌱 Starting seed...\n');
-
     // Clear existing data
     await SlotLock.deleteMany({});
     await Booking.deleteMany({});
     await Room.deleteMany({});
     console.log('🗑️  Cleared existing data');
-
     // Create rooms
     const rooms = await Room.insertMany(ROOMS);
     console.log(`✅ Created ${rooms.length} rooms`);
-
     const [alpha, beta, gamma, delta] = rooms;
     const today = todayStr();
     const tomorrow = dateOffsetStr(1);
     const dayAfter = dateOffsetStr(2);
     const yesterday = dateOffsetStr(-1);
-
     // Current time slots for refund-window testing
     const nowSlot = currentSlot();
-    const in1h = addMinutes(nowSlot, 60);   // starts 1h from now  → NON-refundable
+    const in1h = addMinutes(nowSlot, 60); // starts 1h from now  → NON-refundable
     const in1h30 = addMinutes(nowSlot, 90); // end of that booking
-    const in3h = addMinutes(nowSlot, 180);  // starts 3h from now  → REFUNDABLE
+    const in3h = addMinutes(nowSlot, 180); // starts 3h from now  → REFUNDABLE
     const in3h30 = addMinutes(nowSlot, 210);
-    const in4h = addMinutes(nowSlot, 240);  // starts 4h from now  → REFUNDABLE
+    const in4h = addMinutes(nowSlot, 240); // starts 4h from now  → REFUNDABLE
     const in5h = addMinutes(nowSlot, 300);
-
-    // Define all bookings to seed
-    interface BookingSeed {
-        roomId: mongoose.Types.ObjectId;
-        date: string;
-        startTime: string;
-        endTime: string;
-        name: string;
-        email: string;
-        title: string;
-        status: 'confirmed' | 'cancelled-refundable' | 'cancelled-non-refundable';
-    }
-
-    const bookingSeeds: BookingSeed[] = [
+    const bookingSeeds = [
         // ── Today — within refund window (<2h) — NON-refundable if cancelled now ─
         {
-            roomId: alpha._id as mongoose.Types.ObjectId,
+            roomId: alpha._id,
             date: today,
             startTime: in1h,
             endTime: in1h30,
@@ -137,7 +109,7 @@ async function seed(): Promise<void> {
         },
         // ── Today — outside refund window (>2h) — REFUNDABLE if cancelled now ────
         {
-            roomId: beta._id as mongoose.Types.ObjectId,
+            roomId: beta._id,
             date: today,
             startTime: in3h,
             endTime: in3h30,
@@ -147,7 +119,7 @@ async function seed(): Promise<void> {
             status: 'confirmed',
         },
         {
-            roomId: gamma._id as mongoose.Types.ObjectId,
+            roomId: gamma._id,
             date: today,
             startTime: in4h,
             endTime: in5h,
@@ -158,7 +130,7 @@ async function seed(): Promise<void> {
         },
         // ── Yesterday — past bookings ─────────────────────────────────────────────
         {
-            roomId: alpha._id as mongoose.Types.ObjectId,
+            roomId: alpha._id,
             date: yesterday,
             startTime: '09:00',
             endTime: '10:30',
@@ -168,7 +140,7 @@ async function seed(): Promise<void> {
             status: 'confirmed',
         },
         {
-            roomId: delta._id as mongoose.Types.ObjectId,
+            roomId: delta._id,
             date: yesterday,
             startTime: '14:00',
             endTime: '15:00',
@@ -179,7 +151,7 @@ async function seed(): Promise<void> {
         },
         // ── Tomorrow — future bookings ────────────────────────────────────────────
         {
-            roomId: alpha._id as mongoose.Types.ObjectId,
+            roomId: alpha._id,
             date: tomorrow,
             startTime: '09:00',
             endTime: '10:00',
@@ -189,7 +161,7 @@ async function seed(): Promise<void> {
             status: 'confirmed',
         },
         {
-            roomId: alpha._id as mongoose.Types.ObjectId,
+            roomId: alpha._id,
             date: tomorrow,
             startTime: '11:00',
             endTime: '12:30',
@@ -199,7 +171,7 @@ async function seed(): Promise<void> {
             status: 'confirmed',
         },
         {
-            roomId: beta._id as mongoose.Types.ObjectId,
+            roomId: beta._id,
             date: tomorrow,
             startTime: '13:00',
             endTime: '14:00',
@@ -209,7 +181,7 @@ async function seed(): Promise<void> {
             status: 'confirmed',
         },
         {
-            roomId: gamma._id as mongoose.Types.ObjectId,
+            roomId: gamma._id,
             date: tomorrow,
             startTime: '15:00',
             endTime: '17:00',
@@ -219,7 +191,7 @@ async function seed(): Promise<void> {
             status: 'confirmed',
         },
         {
-            roomId: delta._id as mongoose.Types.ObjectId,
+            roomId: delta._id,
             date: tomorrow,
             startTime: '10:00',
             endTime: '11:00',
@@ -230,7 +202,7 @@ async function seed(): Promise<void> {
         },
         // Day after tomorrow
         {
-            roomId: alpha._id as mongoose.Types.ObjectId,
+            roomId: alpha._id,
             date: dayAfter,
             startTime: '09:30',
             endTime: '11:00',
@@ -240,7 +212,7 @@ async function seed(): Promise<void> {
             status: 'confirmed',
         },
         {
-            roomId: gamma._id as mongoose.Types.ObjectId,
+            roomId: gamma._id,
             date: dayAfter,
             startTime: '14:00',
             endTime: '16:00',
@@ -250,7 +222,7 @@ async function seed(): Promise<void> {
             status: 'confirmed',
         },
         {
-            roomId: beta._id as mongoose.Types.ObjectId,
+            roomId: beta._id,
             date: dayAfter,
             startTime: '11:00',
             endTime: '11:30',
@@ -260,16 +232,13 @@ async function seed(): Promise<void> {
             status: 'confirmed',
         },
     ];
-
     // Insert bookings and their SlotLocks
     let bookingCount = 0;
     let lockCount = 0;
-    const skipped: string[] = [];
-
+    const skipped = [];
     for (const seed of bookingSeeds) {
         try {
             const slots = getSlotsForRange(seed.startTime, seed.endTime);
-
             const booking = await Booking.create({
                 room: seed.roomId,
                 date: seed.date,
@@ -280,7 +249,6 @@ async function seed(): Promise<void> {
                 title: seed.title,
                 status: seed.status,
             });
-
             // Only create SlotLocks for confirmed bookings
             if (seed.status === 'confirmed') {
                 const lockDocs = slots.map((slotStart) => ({
@@ -289,32 +257,29 @@ async function seed(): Promise<void> {
                     slotStart,
                     bookingId: booking._id,
                 }));
-
                 try {
                     await SlotLock.insertMany(lockDocs, { ordered: true });
                     lockCount += lockDocs.length;
-                } catch {
+                }
+                catch {
                     // If locks fail (e.g. time boundary issues in seed), skip gracefully
                     await Booking.findByIdAndDelete(booking._id);
                     skipped.push(`${seed.title} (lock conflict)`);
                     continue;
                 }
             }
-
             bookingCount++;
-        } catch (err) {
-            skipped.push(`${seed.title}: ${(err as Error).message}`);
+        }
+        catch (err) {
+            skipped.push(`${seed.title}: ${err.message}`);
         }
     }
-
     console.log(`✅ Created ${bookingCount} bookings`);
     console.log(`✅ Created ${lockCount} slot locks`);
-
     if (skipped.length) {
         console.log(`⚠️  Skipped ${skipped.length} bookings (likely time boundary edge cases):`);
         skipped.forEach((s) => console.log(`   • ${s}`));
     }
-
     // Summary 
     console.log('\n─────────────────────────────────────────');
     console.log('📋 SEED SUMMARY');
@@ -328,10 +293,8 @@ async function seed(): Promise<void> {
     console.log(`  • Mei-Lin Zhang in Innovation Lab Gamma @ ${in4h}–${in5h}`);
     console.log(`    → Cancel NOW = REFUNDABLE (starts in ~4 hours)`);
     console.log('\n✨ Seed complete!\n');
-
     await disconnectDB();
 }
-
 seed().catch((err) => {
     console.error('Seed failed:', err);
     process.exit(1);
