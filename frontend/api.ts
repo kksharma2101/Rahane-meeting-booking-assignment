@@ -3,7 +3,7 @@ import { ApiResponse, AvailabilityResponse, Booking, Room } from './types';
 
 const API_BASE =
     typeof window === "undefined"
-        ? (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:1206")
+        ? (process.env.NEXT_PUBLIC_API_URL ?? "https://rahane-backend.onrender.com")
         : "";
 
 async function request<T>(
