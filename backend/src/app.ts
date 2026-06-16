@@ -17,7 +17,7 @@ app.use(
     cors({
         origin: process.env.CORS_ORIGIN
             ? process.env.CORS_ORIGIN.split(',')
-            : ['http://localhost:3000', 'http://localhost:3001'],
+            : ['https://rahane-meeting-booking-six.vercel.app', 'http://localhost:3000', 'http://localhost:3001'],
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,

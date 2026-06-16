@@ -16,7 +16,7 @@ export default async function RoomsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 mt-12 lg:mt-0">
       {/* Header */}
       <div className="flex items-end justify-between gap-4">
         <div>
